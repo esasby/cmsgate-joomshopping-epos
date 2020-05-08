@@ -1,0 +1,36 @@
+{
+  "name": "esas/cmsgate-joomshopping-epos",
+  "description": "Joomla joomshopping to Epos (ERIP) cms payment gate library",
+  "keywords": [
+    "cmsgate",
+    "epos",
+    "erip",
+    "payment gateway",
+    "joomla",
+    "joomshopping",
+    "api"
+  ],
+  "require": {
+    "php": ">= 5.6.0",
+    "esas/cmsgate-epos-lib": "~v1.9.0",
+    "esas/cmsgate-joomshopping-lib": "~v1.9.0",
+    "ext-openssl": "*",
+    "ext-curl": "*"
+  },
+  "authors": [
+    {
+      "name": "esas",
+      "email": "info@esas.by",
+      "homepage": "https://esas.by"
+    }
+  ],
+  "config": {
+    "vendor-dir": "src/components/com_jshopping/payments/pm_epos/vendor"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Esas\\Epos\\": ""
+    }
+  }
+}
