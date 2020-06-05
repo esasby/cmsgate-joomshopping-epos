@@ -9,6 +9,9 @@
 namespace esas\cmsgate\epos;
 
 use esas\cmsgate\CmsConnectorJoomshopping;
+use esas\cmsgate\descriptors\ModuleDescriptor;
+use esas\cmsgate\descriptors\VendorDescriptor;
+use esas\cmsgate\descriptors\VersionDescriptor;
 use esas\cmsgate\epos\utils\RequestParamsEpos;
 use esas\cmsgate\epos\view\client\CompletionPanelEposJoomshopping;
 use esas\cmsgate\Registry;
@@ -67,5 +70,17 @@ class RegistryEposJoomshopping extends RegistryEpos
             SystemSettingsWrapperJoomshopping::generatePaySystemControllerUrl("complete") .
             "&" . RequestParamsEpos::ORDER_NUMBER . "=" . $orderWrapper->getOrderNumber() .
             "&" . RequestParamsEpos::INVOICE_ID . "=" . $orderWrapper->getExtId();
+    }
+
+    public function createModuleDescriptor()
+    {
+        return new ModuleDescriptor(
+            "epos",
+            new VersionDescriptor("1.10.0", "2020-06-04"),
+            "Прием платежей через ЕРИП (сервис EPOS)",
+            "https://bitbucket.esas.by/projects/CG/repos/cmsgate-joomshopping-epos/browse",
+            VendorDescriptor::esas(),
+            "Выставление пользовательских счетов в ЕРИП"
+        );
     }
 }

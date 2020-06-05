@@ -9,19 +9,19 @@
 
 use esas\cmsgate\epos\controllers\ControllerEposAddInvoice;
 use esas\cmsgate\epos\controllers\ControllerEposCompletionPage;
-use esas\cmsgate\epos\controllers\ControllerEposWebpayForm;
 use esas\cmsgate\epos\protocol\EposInvoiceAddRs;
 use esas\cmsgate\epos\RegistryEposJoomshopping;
 use esas\cmsgate\epos\utils\RequestParamsEpos;
-use esas\cmsgate\epos\view\client\CompletionPanelEposJoomshopping;
 use esas\cmsgate\messenger\Messages;
 use esas\cmsgate\Registry;
 use esas\cmsgate\utils\Logger;
 use esas\cmsgate\view\admin\ConfigForm;
 use esas\cmsgate\view\admin\ConfigPageJoomshopping;
 use esas\cmsgate\view\ViewUtils;
+use esas\cmsgate\wrappers\OrderWrapper;
 use esas\cmsgate\wrappers\SystemSettingsWrapperJoomshopping;
 use JFactory;
+use JControllerLegacy;
 
 defined('_JEXEC') or die('Restricted access');
 require_once(dirname(__FILE__) . '/init.php');
@@ -61,39 +61,30 @@ class pm_epos extends PaymentRoot
     const RESP_CODE_OK = '0';
     const RESP_CODE_CANCELED = '2018';
 
-
     function checkTransaction($pmconfigs, $order, $act)
     {
-        $request_params = JFactory::getApplication()->input->request->getArray();
-        // все переменные передаются в запросе, можно передевать через сессию
-        $hgStatusCode = $request_params[RequestParamsEpos::EPOS_STATUS];
-        $billId = $request_params[RequestParamsEpos::INVOICE_ID];
-        if ($hgStatusCode != '0') {
-            // в epos большое кол-во кодов неуспешного выставления счета, поэтому для упрощения сводим их все к одному
-            $respCode = self::RESP_CODE_CANCELED;
-            $message = "Ошибка выставления счета";
-        } else {
-            $respCode = self::RESP_CODE_OK;
-            $message = 'Order[' . $order->order_id . '] was successfully added to Epos with invoice[' . $billId . ']';
-        }
-        //пока счет не будет оплачен в ЕРИП у заказа будет статус Pending
-        return array($respCode, $message, $billId);
+        /**
+         * Тут никаких проверок ответа от EPOS не делаем, т.к. сделали их ранее в ControllerEposAddInvoice
+         * Просто сохраняем враппер в сессии для возможности обращения к нему в getStatusFromResCode
+         */
+        $orderWrapper = Registry::getRegistry()->getOrderWrapper($order->order_id);
+        $session = JFactory::getSession();
+        $session->set('orderWrapper', $orderWrapper);
+        return array(0, "", $orderWrapper->getExtId());
     }
 
     /**
-     * На основе кода ответа от платежного шлюза задаем статус заказу
+     * Важно вернуть тот статус заказа, который был выставлен в ControllerEposAddInvoice
+     * Т.к. далее происходит перезапись статуса тем статусом, которые вернет этот метод
      * @param int $rescode
      * @param array $pmconfigs
      * @return mixed
      */
     function getStatusFromResCode($rescode, $pmconfigs)
     {
-        if ($rescode != self::RESP_CODE_OK) {
-            $status = Registry::getRegistry()->getConfigWrapper()->getBillStatusCanceled();
-        } else {
-            $status = Registry::getRegistry()->getConfigWrapper()->getBillStatusPayed();
-        }
-        return $status;
+        $session = JFactory::getSession();
+        $orderWrapper=  $session->get('orderWrapper');
+        return $orderWrapper->getStatus();
     }
 
     /**
@@ -102,7 +93,7 @@ class pm_epos extends PaymentRoot
      */
     function getNoBuyResCode()
     {
-        // в bgpb большое кол-во кодов неуспешного выставления счета, поэтому для упрощения сводим их все к одному
+        // в epos большое кол-во кодов неуспешного выставления счета, поэтому для упрощения сводим их все к одному
         return array(self::RESP_CODE_CANCELED);
     }
 
@@ -125,13 +116,10 @@ class pm_epos extends PaymentRoot
              * На этом этапе мы только выполняем запрос к HG для добавления счета. Мы не показываем итоговый экран
              * (с кнопками webpay и alfaclick), а выполняем автоматический редирект на step7
              **/
+
             $redirectParams = array(
                 "js_paymentclass" => SystemSettingsWrapperJoomshopping::getPaymentCode(),
-                RequestParamsEpos::EPOS_STATUS => $addBillRs->getResponseCode(),
                 RequestParamsEpos::ORDER_ID => $order->order_id);
-            if ($addBillRs->getInvoiceId())
-                $redirectParams[RequestParamsEpos::INVOICE_ID] = $addBillRs->getInvoiceId();
-
             JFactory::getApplication()->redirect(SystemSettingsWrapperJoomshopping::generateControllerPath("checkout", "step7") . '&' . http_build_query($redirectParams));
         } catch (Throwable $e) {
             $this->redirectError($e->getMessage());
