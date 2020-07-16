@@ -76,7 +76,7 @@ class RegistryEposJoomshopping extends RegistryEpos
     {
         return new ModuleDescriptor(
             "epos",
-            new VersionDescriptor("1.10.0", "2020-06-04"),
+            new VersionDescriptor("1.11.0", "2020-07-16"),
             "Прием платежей через ЕРИП (сервис EPOS)",
             "https://bitbucket.esas.by/projects/CG/repos/cmsgate-joomshopping-epos/browse",
             VendorDescriptor::esas(),
