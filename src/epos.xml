@@ -20,6 +20,6 @@
         <folder>install</folder>
     </files>
     <updateservers>
-        <server type="extension" priority="1" name="Custom PHP module for Joomla">https://raw.githubusercontent.com/esasby/hutkigrosh-joomla3-joomshopping4-module/master/update.xml</server>
+        <server type="extension" priority="1" name="Custom PHP module for Joomla">https://bitbucket.org/esasby/cmsgate-joomshopping-epos/raw/master/update.xml</server>
     </updateservers>
 </extension>

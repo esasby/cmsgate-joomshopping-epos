@@ -14,4 +14,18 @@
         <targetplatform name="joomla" version="3"/>
         <client>0</client>
     </update>
+    <update>
+        <name>EPOS for Joomshopping</name>
+        <description>EPOS™ — payment service for invoicing to AIS *Raschet* (ERIP Belarus). After invoicing you will be available for payment by a plastic card and electronic money, at any of the bank branches, cash desks, ATMs, payment terminals, in the electronic money system, through Internet banking, M-banking, Internet acquiring</description>
+        <element>epos</element>
+        <type>plugin</type>
+        <folder>jshopping</folder>
+        <version>1.11.0</version>
+        <downloads>
+            <downloadurl type="full" format="zip">https://bitbucket.org/esasby/cmsgate-joomshopping-epos/raw/master/plg_jshopping_epos.zip
+            </downloadurl>
+        </downloads>
+        <targetplatform name="joomla" version="3"/>
+        <client>0</client>
+    </update>
 </updates>
