@@ -47,7 +47,9 @@ class RegistryEposJoomshopping extends RegistryEpos
             [
                 ConfigFieldsEpos::shopName(),
                 ConfigFieldsEpos::paymentMethodName(),
-                ConfigFieldsEpos::paymentMethodDetails()
+                ConfigFieldsEpos::paymentMethodDetails(),
+                ConfigFieldsEpos::paymentMethodNameWebpay(),
+                ConfigFieldsEpos::paymentMethodDetailsWebpay()
             ]);
         $configForm = new ConfigFormJoomshopping(
             $managedFields,
@@ -63,9 +65,8 @@ class RegistryEposJoomshopping extends RegistryEpos
         return new CompletionPanelEposJoomshopping($orderWrapper);
     }
 
-    function getUrlWebpay($orderId)
+    function getUrlWebpay($orderWrapper)
     {
-        $orderWrapper = Registry::getRegistry()->getOrderWrapper($orderId);
         return
             SystemSettingsWrapperJoomshopping::generatePaySystemControllerUrl("complete") .
             "&" . RequestParamsEpos::ORDER_NUMBER . "=" . $orderWrapper->getOrderNumber() .
